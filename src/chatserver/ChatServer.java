@@ -155,12 +155,14 @@ public class ChatServer {
 													writer.println("PVT " + receiver + " " + name + ": " + message);
 												}
 											}
-											return;
-										}
-
-                    for (PrintWriter writer : writers) {
+//											return;
+//                      continue;
+										} else {
+                      for (PrintWriter writer : writers) {
                         writer.println("MESSAGE " + name + ": " + input);
+                      }
                     }
+
                 }
             }// TODO: Handle the SocketException here to handle a client closing the socket
             catch (IOException e) {
