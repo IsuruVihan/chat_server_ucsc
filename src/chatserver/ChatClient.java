@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JList;
 
 /**
  * A simple Swing-based client for the chat server.  Graphically
@@ -40,7 +41,7 @@ public class ChatClient {
     JTextField textField = new JTextField(40);
     JTextArea messageArea = new JTextArea(8, 40);
     // TODO: Add a list box
-
+		JList<String> participantsList = new JList<String>();
     /**
      * Constructs the client by laying out the GUI and registering a
      * listener with the textfield so that pressing Return in the
@@ -116,13 +117,13 @@ public class ChatClient {
         // TODO: You may have to extend this protocol to achieve task 9 in the lab sheet
         while (true) {
             String line = in.readLine();
-//            System.out.println(line);
             if (line == null) {
                 line = "";
             }
             if (line.startsWith("SUBMITNAME")) {
 								out.println(getName());
             } else if (line.startsWith("NAMEACCEPTED")) {
+								System.out.println(line);
                 textField.setEditable(true);
             } else if (line.startsWith("MESSAGE")) {
                 messageArea.append(line.substring(8) + "\n");
@@ -133,6 +134,8 @@ public class ChatClient {
 								if (whoami.equals(receiver)) {
 									messageArea.append(message + "\n");
 								}
+            } else if (line.startsWith("PARTICIPANTS")) {
+	            System.out.println(line);
             }
         }
     }

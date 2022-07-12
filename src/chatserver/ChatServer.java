@@ -125,7 +125,17 @@ public class ChatServer {
                 // this client can receive broadcast messages.
                 out.println("NAMEACCEPTED");
                 writers.add(out);
-                
+
+								String allClients = "";
+								for (String strClient : names) {
+									allClients += strClient;
+									allClients += ",";
+								}
+
+		            for (PrintWriter writer : writers) {
+			            writer.println("PARTICIPANTS " + allClients);
+		            }
+
                 // TODO: You may have to add some code here to broadcast all clients the new
                 // client's name for the task 9 on the lab sheet. 
 
@@ -177,6 +187,15 @@ public class ChatServer {
                     writers.remove(out);
                 }
                 try {
+		                String allClients = "";
+		                for (String strClient : names) {
+			                allClients += strClient;
+			                allClients += ",";
+		                }
+
+		                for (PrintWriter writer : writers) {
+			                writer.println("PARTICIPANTS " + allClients);
+		                }
                     socket.close();
                 } catch (IOException e) {
                 }
