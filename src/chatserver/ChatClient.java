@@ -138,11 +138,14 @@ public class ChatClient {
 					messageArea.append(line.substring(8) + "\n");
 				}
       } else if (line.startsWith("PVT")) {
-	      String arr[] = line.substring(4).split(" ", 2);
-	      String receiver = arr[0];
-	      String message = arr[1];
-				if (whoami.equals(receiver)) {
-					messageArea.append(message + "\n");
+	      String sender = line.split(" ", 4)[2].split(":", 2)[0];
+				if (!blockedList.contains(sender)) {
+					String arr[] = line.substring(4).split(" ", 2);
+					String receiver = arr[0];
+					String message = arr[1];
+					if (whoami.equals(receiver)) {
+						messageArea.append(message + "\n");
+					}
 				}
       } else if (line.startsWith("PARTICIPANTS")) {
 				String[] arr = line.substring(13).split(",", 10);
