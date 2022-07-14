@@ -128,15 +128,15 @@ public class ChatClient {
     // TODO: You may have to extend this protocol to achieve task 9 in the lab sheet
     while (true) {
       String line = in.readLine();
-			System.out.println("LINE: " + line);
       if (line == null) line = "";
       if (line.startsWith("SUBMITNAME")) {
 				out.println(getName());
       } else if (line.startsWith("NAMEACCEPTED")) {
-				System.out.println(line);
-        textField.setEditable(true);
+				textField.setEditable(true);
       } else if (line.startsWith("MESSAGE")) {
-        messageArea.append(line.substring(8) + "\n");
+				if (!blockedList.contains(line.substring(8).split(": ", 2)[0])) {
+					messageArea.append(line.substring(8) + "\n");
+				}
       } else if (line.startsWith("PVT")) {
 	      String arr[] = line.substring(4).split(" ", 2);
 	      String receiver = arr[0];
