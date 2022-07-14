@@ -10,6 +10,8 @@ import java.net.Socket;
 import java.util.Arrays;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 //import javax.swing.JFrame;
 //import javax.swing.JOptionPane;
 //import javax.swing.JScrollPane;
@@ -153,6 +155,15 @@ public class ChatClient {
 							String[] tempData = subArray(arr, 0, arr.length-2);
 	            frame.getContentPane().remove(myList);
 							myList = new JList<String>(tempData);
+							myList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	            myList.addListSelectionListener(new ListSelectionListener() {
+		            @Override
+		            public void valueChanged(ListSelectionEvent e) {
+			            JList list = (JList)e.getSource();
+			            System.out.println(list.getSelectedValuesList());
+		            }
+	            });
+
 	            frame.getContentPane().add(myList, "West");
 	            frame.pack();
             }
