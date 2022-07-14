@@ -118,6 +118,7 @@ public class ChatClient {
             "Choose a screen name:",
             "Screen name selection",
             JOptionPane.PLAIN_MESSAGE);
+            frame.setTitle("Chatter " + whoami);
 				return whoami;
     }
 
