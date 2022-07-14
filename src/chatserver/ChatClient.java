@@ -8,18 +8,11 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
-
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-//import javax.swing.JFrame;
-//import javax.swing.JOptionPane;
-//import javax.swing.JScrollPane;
-//import javax.swing.JTextArea;
-//import javax.swing.JTextField;
-//import javax.swing.JList;
-//import javax.swing.ListSelectionModel;
 
 /**
  * A simple Swing-based client for the chat server.  Graphically
@@ -38,18 +31,20 @@ import javax.swing.event.ListSelectionListener;
  * this string should be displayed in its message area.
  */
 public class ChatClient {
+	private String whoami;
+	private List selectedParticipants;
+	BufferedReader in;
+	PrintWriter out;
+	JFrame frame = new JFrame("Chatter");
+	JTextField textField = new JTextField(40);
+	JTextArea messageArea = new JTextArea(8, 40);
 
-		private String whoami;
-		private List selectedParticipants;
-    BufferedReader in;
-    PrintWriter out;
-    JFrame frame = new JFrame("Chatter");
-    JTextField textField = new JTextField(40);
-    JTextArea messageArea = new JTextArea(8, 40);
-    // TODO: Add a list box
+	LinkedList<String> blockedList = new LinkedList<>();
+	JPanel panel = new JPanel();
 
-		String[] data = {};
-		JList<String> myList = new JList<String>(data);
+	String[] data = {};
+	JList<String> myList = new JList<String>(data);
+
 	/**
      * Constructs the client by laying out the GUI and registering a
      * listener with the textfield so that pressing Return in the
@@ -57,133 +52,150 @@ public class ChatClient {
      * however that the textfield is initially NOT editable, and
      * only becomes editable AFTER the client receives the NAMEACCEPTED
      * message from the server.
-     */
-//		 private void setParticipantsList (String[] participants) {
-//			 participantsList
-//		 }
+  */
+	public static<T> T[] subArray(T[] array, int beg, int end) {
+		return Arrays.copyOfRange(array, beg, end + 1);
+	}
 
-    public static<T> T[] subArray(T[] array, int beg, int end) {
-	    return Arrays.copyOfRange(array, beg, end + 1);
-    }
+	public ChatClient() {
 
-    public ChatClient() {
+		// Layout GUI
+    textField.setEditable(false);
+    messageArea.setEditable(false);
+	  frame.getContentPane().add(myList, "West");
+    frame.getContentPane().add(textField, "North");
+    frame.getContentPane().add(new JScrollPane(messageArea), "Center");
+    frame.pack();
 
-        // Layout GUI
-        textField.setEditable(false);
-        messageArea.setEditable(false);
+    // TODO: You may have to edit this event handler to handle point to point messaging,
+    // where one client can send a message to a specific client. You can add some header to
+    // the message to identify the recipient. You can get the receipient name from the listbox.
+    textField.addActionListener(new ActionListener() {
+
+			/**
+        * Responds to pressing the enter key in the textfield by sending
+        * the contents of the text field to the server.    Then clear
+        * the text area in preparation for the next message.
+      */
+      public void actionPerformed(ActionEvent e) {
+				if (selectedParticipants == null) {
+					out.println(textField.getText());
+				} else {
+					out.println(";" + Arrays.toString(selectedParticipants.toArray()) + ":" + textField.getText());
+				}
+        textField.setText("");
+      }
+    });
+  }
+
+  /**
+    * Prompt for and return the address of the server.
+  */
+	private String getServerAddress() {
+    return JOptionPane.showInputDialog(
+      frame,
+      "Enter IP Address of the Server:",
+      "Welcome to the Chatter",
+      JOptionPane.QUESTION_MESSAGE
+    );
+  }
+
+  /**
+    * Prompt for and return the desired screen name.
+  */
+  private String getName() {
+    whoami = JOptionPane.showInputDialog(
+      frame,
+      "Choose a screen name:",
+      "Screen name selection",
+      JOptionPane.PLAIN_MESSAGE
+    );
+		return whoami;
+  }
+
+  /**
+    * Connects to the server then enters the processing loop.
+  */
+  private void run() throws IOException {
+
+		// Make connection and initialize streams
+    String serverAddress = getServerAddress();
+    Socket socket = new Socket(serverAddress, 9001); // 9001
+    in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    out = new PrintWriter(socket.getOutputStream(), true);
+
+    // Process all messages from server, according to the protocol.
+    // TODO: You may have to extend this protocol to achieve task 9 in the lab sheet
+    while (true) {
+      String line = in.readLine();
+			System.out.println("LINE: " + line);
+      if (line == null) line = "";
+      if (line.startsWith("SUBMITNAME")) {
+				out.println(getName());
+      } else if (line.startsWith("NAMEACCEPTED")) {
+				System.out.println(line);
+        textField.setEditable(true);
+      } else if (line.startsWith("MESSAGE")) {
+        messageArea.append(line.substring(8) + "\n");
+      } else if (line.startsWith("PVT")) {
+	      String arr[] = line.substring(4).split(" ", 2);
+	      String receiver = arr[0];
+	      String message = arr[1];
+				if (whoami.equals(receiver)) {
+					messageArea.append(message + "\n");
+				}
+      } else if (line.startsWith("PARTICIPANTS")) {
+				String[] arr = line.substring(13).split(",", 10);
+	      System.out.println(Arrays.toString(subArray(arr, 0, arr.length-2)));
+				String[] tempData = subArray(arr, 0, arr.length-2);
+				frame.getContentPane().remove(myList);
+				myList = new JList<String>(tempData);
+				myList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	      myList.addListSelectionListener(new ListSelectionListener() {
+		      @Override
+		      public void valueChanged(ListSelectionEvent e) {
+			      JList list = (JList)e.getSource();
+						selectedParticipants = list.getSelectedValuesList();
+			      System.out.println(selectedParticipants);
+		      }
+	      });
 	      frame.getContentPane().add(myList, "West");
-        frame.getContentPane().add(textField, "North");
-        frame.getContentPane().add(new JScrollPane(messageArea), "Center");
-        frame.pack();
 
-        // TODO: You may have to edit this event handler to handle point to point messaging,
-        // where one client can send a message to a specific client. You can add some header to 
-        // the message to identify the recipient. You can get the receipient name from the listbox.
-        textField.addActionListener(new ActionListener() {
-            /**
-             * Responds to pressing the enter key in the textfield by sending
-             * the contents of the text field to the server.    Then clear
-             * the text area in preparation for the next message.
-             */
-            public void actionPerformed(ActionEvent e) {
-							if (selectedParticipants == null) {
-								out.println(textField.getText());
+	      frame.getContentPane().remove(panel);
+	      panel = new JPanel();
+				JCheckBox[] checkBoxes = new JCheckBox[tempData.length];
+				for (int i = 0; i< tempData.length; i++) {
+					checkBoxes[i] = new JCheckBox(tempData[i]);
+					checkBoxes[i].addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							Object source = e.getSource();
+							if (((JCheckBox)source).isSelected()) {
+								blockedList.add(((JCheckBox)source).getText());
 							} else {
-								out.println(";" + Arrays.toString(selectedParticipants.toArray()) + ":" + textField.getText());
+								blockedList.remove(((JCheckBox) source).getText());
 							}
-              textField.setText("");
-            }
-        });
-        
-        
+							System.out.println("BLOCKED LIST: " + blockedList);
+							JOptionPane.showMessageDialog(frame,
+								"Block: " + ((JCheckBox)source).getText() + ": " + ((JCheckBox)source).isSelected());
+						}
+					});
+					checkBoxes[i].setVisible(true);
+					panel.add(checkBoxes[i]);
+				}
+	      frame.getContentPane().add(panel, "South");
+	      frame.pack();
+      }
     }
+	}
 
-    /**
-     * Prompt for and return the address of the server.
-     */
-    private String getServerAddress() {
-        return JOptionPane.showInputDialog(
-            frame,
-            "Enter IP Address of the Server:",
-            "Welcome to the Chatter",
-            JOptionPane.QUESTION_MESSAGE);
-    }
-
-    /**
-     * Prompt for and return the desired screen name.
-     */
-    private String getName() {
-        whoami = JOptionPane.showInputDialog(
-            frame,
-            "Choose a screen name:",
-            "Screen name selection",
-            JOptionPane.PLAIN_MESSAGE);
-				return whoami;
-    }
-
-    /**
-     * Connects to the server then enters the processing loop.
-     */
-    private void run() throws IOException {
-
-        // Make connection and initialize streams
-        String serverAddress = getServerAddress();
-        Socket socket = new Socket(serverAddress, 9001); // 9001
-        in = new BufferedReader(new InputStreamReader(
-            socket.getInputStream()));
-        out = new PrintWriter(socket.getOutputStream(), true);
-
-        // Process all messages from server, according to the protocol.
-        
-        // TODO: You may have to extend this protocol to achieve task 9 in the lab sheet
-        while (true) {
-            String line = in.readLine();
-            if (line == null) {
-                line = "";
-            }
-            if (line.startsWith("SUBMITNAME")) {
-								out.println(getName());
-            } else if (line.startsWith("NAMEACCEPTED")) {
-								System.out.println(line);
-                textField.setEditable(true);
-            } else if (line.startsWith("MESSAGE")) {
-                messageArea.append(line.substring(8) + "\n");
-            } else if (line.startsWith("PVT")) {
-	              String arr[] = line.substring(4).split(" ", 2);
-	              String receiver = arr[0];
-	              String message = arr[1];
-								if (whoami.equals(receiver)) {
-									messageArea.append(message + "\n");
-								}
-            } else if (line.startsWith("PARTICIPANTS")) {
-							String[] arr = line.substring(13).split(",", 10);
-	            System.out.println(Arrays.toString(subArray(arr, 0, arr.length-2)));
-							String[] tempData = subArray(arr, 0, arr.length-2);
-	            frame.getContentPane().remove(myList);
-							myList = new JList<String>(tempData);
-							myList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-	            myList.addListSelectionListener(new ListSelectionListener() {
-		            @Override
-		            public void valueChanged(ListSelectionEvent e) {
-			            JList list = (JList)e.getSource();
-									selectedParticipants = list.getSelectedValuesList();
-			            System.out.println(selectedParticipants);
-		            }
-	            });
-
-	            frame.getContentPane().add(myList, "West");
-	            frame.pack();
-            }
-        }
-    }
-
-    /**
-     * Runs the client as an application with a closeable frame.
-     */
-    public static void main(String[] args) throws Exception {
-        ChatClient client = new ChatClient();
-        client.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        client.frame.setVisible(true);
-        client.run();
-    }
+	/**
+		* Runs the client as an application with a closeable frame.
+	*/
+	public static void main(String[] args) throws Exception {
+    ChatClient client = new ChatClient();
+    client.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    client.frame.setVisible(true);
+    client.run();
+	}
 }
