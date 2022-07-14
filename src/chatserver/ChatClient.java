@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -39,6 +40,7 @@ import javax.swing.event.ListSelectionListener;
 public class ChatClient {
 
 		private String whoami;
+		private List selectedParticipants;
     BufferedReader in;
     PrintWriter out;
     JFrame frame = new JFrame("Chatter");
@@ -46,7 +48,7 @@ public class ChatClient {
     JTextArea messageArea = new JTextArea(8, 40);
     // TODO: Add a list box
 
-		String[] data = {"one", "two", "three", "four"};
+		String[] data = {};
 		JList<String> myList = new JList<String>(data);
 	/**
      * Constructs the client by laying out the GUI and registering a
@@ -84,8 +86,12 @@ public class ChatClient {
              * the text area in preparation for the next message.
              */
             public void actionPerformed(ActionEvent e) {
-                out.println(textField.getText());
-                textField.setText("");
+							if (selectedParticipants == null) {
+								out.println(textField.getText());
+							} else {
+								out.println(";" + Arrays.toString(selectedParticipants.toArray()) + ":" + textField.getText());
+							}
+              textField.setText("");
             }
         });
         
@@ -160,7 +166,8 @@ public class ChatClient {
 		            @Override
 		            public void valueChanged(ListSelectionEvent e) {
 			            JList list = (JList)e.getSource();
-			            System.out.println(list.getSelectedValuesList());
+									selectedParticipants = list.getSelectedValuesList();
+			            System.out.println(selectedParticipants);
 		            }
 	            });
 

@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.HashSet;
 
 /**
@@ -167,6 +168,19 @@ public class ChatServer {
 											}
 //											return;
 //                      continue;
+										} else if (input.substring(0,1).equals(";")) {
+											String arr[] = input.split(":", 2);
+											String receiver = arr[0].substring(1);
+											String message = arr[1];
+											String[] receiverArr = receiver.subSequence(1, receiver.length() - 1).toString().split(", ", 50);
+											System.out.println("RECEIVER: " + Arrays.toString(receiverArr));
+											System.out.println("LENGTH: " + receiverArr.length);
+											System.out.println("MESSAGE: " + message);
+											for (PrintWriter writer : writers) {
+												for (String rcv : receiverArr) {
+													writer.println("PVT " + rcv + " " + name + ": " + message);
+												}
+											}
 										} else {
                       for (PrintWriter writer : writers) {
                         writer.println("MESSAGE " + name + ": " + input);
