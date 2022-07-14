@@ -10,17 +10,9 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-//import javax.swing.JFrame;
-//import javax.swing.JOptionPane;
-//import javax.swing.JScrollPane;
-//import javax.swing.JTextArea;
-//import javax.swing.JTextField;
-//import javax.swing.JList;
-//import javax.swing.ListSelectionModel;
 
 /**
  * A simple Swing-based client for the chat server.  Graphically
@@ -38,6 +30,7 @@ import javax.swing.event.ListSelectionListener;
  * line beginning with "MESSAGE " then all characters following
  * this string should be displayed in its message area.
  */
+
 public class ChatClient {
 	private String whoami;
 	private List selectedParticipants;
@@ -61,12 +54,12 @@ public class ChatClient {
      * only becomes editable AFTER the client receives the NAMEACCEPTED
      * message from the server.
   */
+
 	public static<T> T[] subArray(T[] array, int beg, int end) {
 		return Arrays.copyOfRange(array, beg, end + 1);
 	}
 
 	public ChatClient() {
-
 		// Layout GUI
     textField.setEditable(false);
     messageArea.setEditable(false);
@@ -78,8 +71,8 @@ public class ChatClient {
     // TODO: You may have to edit this event handler to handle point to point messaging,
     // where one client can send a message to a specific client. You can add some header to
     // the message to identify the recipient. You can get the receipient name from the listbox.
-    textField.addActionListener(new ActionListener() {
 
+		textField.addActionListener(new ActionListener() {
 			/**
         * Responds to pressing the enter key in the textfield by sending
         * the contents of the text field to the server.    Then clear
@@ -108,24 +101,24 @@ public class ChatClient {
     );
   }
 
-    /**
-     * Prompt for and return the desired screen name.
-     */
-    private String getName() {
-        whoami = JOptionPane.showInputDialog(
-            frame,
-            "Choose a screen name:",
-            "Screen name selection",
-            JOptionPane.PLAIN_MESSAGE);
-            frame.setTitle("Chatter " + whoami);
-				return whoami;
-    }
+  /**
+    * Prompt for and return the desired screen name.
+  */
+  private String getName() {
+    whoami = JOptionPane.showInputDialog(
+      frame,
+      "Choose a screen name:",
+      "Screen name selection",
+      JOptionPane.PLAIN_MESSAGE
+    );
+    frame.setTitle("Chatter " + whoami);
+		return whoami;
+  }
 
   /**
     * Connects to the server then enters the processing loop.
   */
   private void run() throws IOException {
-
 		// Make connection and initialize streams
     String serverAddress = getServerAddress();
     Socket socket = new Socket(serverAddress, 9001); // 9001
