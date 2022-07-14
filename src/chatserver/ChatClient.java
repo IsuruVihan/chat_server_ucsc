@@ -1,6 +1,5 @@
 package chatserver;
 
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -8,13 +7,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Arrays;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JList;
+import javax.swing.*;
+//import javax.swing.JFrame;
+//import javax.swing.JOptionPane;
+//import javax.swing.JScrollPane;
+//import javax.swing.JTextArea;
+//import javax.swing.JTextField;
+//import javax.swing.JList;
+//import javax.swing.ListSelectionModel;
 
 /**
  * A simple Swing-based client for the chat server.  Graphically
@@ -41,8 +43,10 @@ public class ChatClient {
     JTextField textField = new JTextField(40);
     JTextArea messageArea = new JTextArea(8, 40);
     // TODO: Add a list box
-		JList<String> participantsList = new JList<String>();
-    /**
+
+		String[] data = {"one", "two", "three", "four"};
+		JList<String> myList = new JList<String>(data);
+	/**
      * Constructs the client by laying out the GUI and registering a
      * listener with the textfield so that pressing Return in the
      * listener sends the textfield contents to the server.  Note
@@ -50,11 +54,20 @@ public class ChatClient {
      * only becomes editable AFTER the client receives the NAMEACCEPTED
      * message from the server.
      */
+//		 private void setParticipantsList (String[] participants) {
+//			 participantsList
+//		 }
+
+    public static<T> T[] subArray(T[] array, int beg, int end) {
+	    return Arrays.copyOfRange(array, beg, end + 1);
+    }
+
     public ChatClient() {
 
         // Layout GUI
         textField.setEditable(false);
         messageArea.setEditable(false);
+	      frame.getContentPane().add(myList, "West");
         frame.getContentPane().add(textField, "North");
         frame.getContentPane().add(new JScrollPane(messageArea), "Center");
         frame.pack();
@@ -135,7 +148,13 @@ public class ChatClient {
 									messageArea.append(message + "\n");
 								}
             } else if (line.startsWith("PARTICIPANTS")) {
-	            System.out.println(line);
+							String[] arr = line.substring(13).split(",", 10);
+	            System.out.println(Arrays.toString(subArray(arr, 0, arr.length-2)));
+							String[] tempData = subArray(arr, 0, arr.length-2);
+	            frame.getContentPane().remove(myList);
+							myList = new JList<String>(tempData);
+	            frame.getContentPane().add(myList, "West");
+	            frame.pack();
             }
         }
     }
