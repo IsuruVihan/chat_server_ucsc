@@ -10,9 +10,17 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+//import javax.swing.JFrame;
+//import javax.swing.JOptionPane;
+//import javax.swing.JScrollPane;
+//import javax.swing.JTextArea;
+//import javax.swing.JTextField;
+//import javax.swing.JList;
+//import javax.swing.ListSelectionModel;
 
 /**
  * A simple Swing-based client for the chat server.  Graphically
@@ -100,18 +108,18 @@ public class ChatClient {
     );
   }
 
-  /**
-    * Prompt for and return the desired screen name.
-  */
-  private String getName() {
-    whoami = JOptionPane.showInputDialog(
-      frame,
-      "Choose a screen name:",
-      "Screen name selection",
-      JOptionPane.PLAIN_MESSAGE
-    );
-		return whoami;
-  }
+    /**
+     * Prompt for and return the desired screen name.
+     */
+    private String getName() {
+        whoami = JOptionPane.showInputDialog(
+            frame,
+            "Choose a screen name:",
+            "Screen name selection",
+            JOptionPane.PLAIN_MESSAGE);
+            frame.setTitle("Chatter " + whoami);
+				return whoami;
+    }
 
   /**
     * Connects to the server then enters the processing loop.
